@@ -1,0 +1,156 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.mainDiv {
+    background-color: #171923;
+    /* height: fit-content; */
+    font-family: 'Outfit';
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 30px 0px;
+    margin: 0px 5vw;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo h3 {
+    color: #ffffff;
+}
+
+.userAction {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+#signInButton {
+    height: 40px;
+    width: 80px;
+    border-radius: 5px;
+    color: #7EA6FF;
+    border: 1px solid #7EA6FF;
+    background-color: transparent;
+}
+
+#fromBotButton {
+    height: 40px;
+    width: 150px;
+    border-radius: 5px;
+    background-color: #1A5FFF;
+    color: #ffffff;
+    border: none;
+}
+
+.upperMiddle {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 70px;
+}
+
+.titleBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.titleBox h1 {
+    font-size: 60px;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(90deg, #4B83FF, #B794F4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+}
+
+.titleBox p {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 19px;
+    color: #FFFFFFEB;
+    margin: 20px 0px;
+}
+
+.titleBox button {
+    height: 60px;
+    width: 230px;
+    color: #ffffff;
+    background-color: #1A5FFF;
+    border: none;
+    border-radius: 5px;
+}
+
+.loverMiddleConatiner {
+    position: relative;
+    width: 90vw; 
+    margin: 0px 5vw 200px 5vw;
+    height: fit-content;
+    margin-top: 150px;
+    display: flex;
+    justify-content: center; 
+}
+
+.circles {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    width: 90vw;
+
+}
+
+.circle {
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(20px);
+}
+
+#circle1{
+    background-color: #e6720099;
+}
+
+#circle2{
+    background-color: #1a5fffbf;
+}
+
+.loverMiddleConatiner img {
+    position: relative;
+    z-index: 1;
+    max-width: 85vw; 
+    height: fit-content;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.lowerContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 60vw;
+    height: 250px;
+    margin: 0px 20vw;
+    color: #FFFFFFEB;
+    /* background-color: aqua; */
+}
+
+.footerLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
