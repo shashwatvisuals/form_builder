@@ -1,0 +1,17 @@
+/* Light theme styles */
+body[data-theme="light"] {
+    background-color: white;
+    color: black;
+  }
+  
+  /* Dark theme styles */
+  body[data-theme="dark"] {
+    background-color: black;
+    color: white;
+  }
+  
+  /* Optional smooth transition */
+  body {
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
