@@ -1,28 +1,56 @@
 // import React, { useState, useEffect } from 'react';
 // import { useParams } from 'react-router-dom';
+// import { IoSend } from "react-icons/io5";
+// import { v4 as uuidv4 } from 'uuid';
+// import axios from 'axios';
 // import styles from './pagesModuleCSS/FormBot.module.css';
 
 // const FormBot = () => {
-//   const { formId } = useParams(); // Fetch formId from URL
+//   const backendURL = import.meta.env.VITE_BACKEND_URL; 
+//   const { formId } = useParams();
 //   const [formData, setFormData] = useState(null);
-//   const [currentIndex, setCurrentIndex] = useState(0); // Track the current index of form elements
-//   const [responses, setResponses] = useState({}); // Track the responses as an object for each element
-//   const [history, setHistory] = useState([]); // Store the stack history (bubbles and inputs)
-//   const [formSubmitted, setFormSubmitted] = useState(false); // Track if the form has been submitted
+//   const [sessionId] = useState(uuidv4());
+//   const [elementId, setElementId] = useState('');
+//   const [currentIndex, setCurrentIndex] = useState(0);
+//   const [responses, setResponses] = useState({});
+//   const [history, setHistory] = useState([]); // To store history of bubbles and inputs
+//   const [formSubmitted, setFormSubmitted] = useState(false);
+//   const [loading, setLoading] = useState(true);  // Track loading state
 
-//   // Fetch form prototype from localStorage based on formId
 //   useEffect(() => {
-//     const savedPrototype = JSON.parse(localStorage.getItem('formPrototype'));
-//     if (savedPrototype && savedPrototype.id === formId) {
-//       setFormData(savedPrototype);
-//     } else {
-//       alert('Form not found!');
-//     }
+//     const fetchForm = async () => {
+//       try {
+//         const response = await axios.get(`${backendURL}/api/forms/${formId}`);
+//         console.log('Form data:', response.data.data);
+//         setElementId(response.data.data._id);
+//         setFormData(response.data.data);
+//         setLoading(false);  // Set loading to false when data is fetched
+//       } catch (error) {
+//         console.error('Error fetching form:', error);
+//         alert('Failed to load the form. Please check the link.');
+//       }
+//     };
+
+//     fetchForm();
 //   }, [formId]);
 
-//   // Handle input submission and move to the next element
+//   const saveResponse = async (elementId, response) => {
+//     try {
+//       const payload = { elementId, response, sessionId };
+//       await axios.post(`${backendURL}/api/forms/${formId}/responses`, payload);
+//       console.log('Response saved:', response);
+//     } catch (error) {
+//       console.error('Error saving response:', error.response ? error.response.data : error.message);
+//     }
+//   };
+
 //   const handleInputSubmit = () => {
 //     if (!responses[currentIndex]?.trim()) return; // Prevent submitting empty input
+
+//     const currentElement = formData.content[currentIndex];
+
+//     // Save the response to the backend
+//     saveResponse(currentElement._id, responses[currentIndex]);
 
 //     // Add the current input to history
 //     setHistory((prevHistory) => [
@@ -30,44 +58,75 @@
 //       { type: 'input', response: responses[currentIndex] },
 //     ]);
 
-//     // Move to the next element after input submission
+//     // Move to the next element by updating responses and currentIndex
 //     setResponses((prevResponses) => ({
 //       ...prevResponses,
-//       [currentIndex]: '',
+//       [currentIndex]: '', // Clear the response for current index
 //     }));
-//     setCurrentIndex((prevIndex) => prevIndex + 1);
+
+//     setCurrentIndex((prevIndex) => {
+//       if (prevIndex + 1 < formData.content.length) {
+//         return prevIndex + 1;
+//       } else {
+//         setFormSubmitted(true); // If it's the last element, mark the form as submitted
+//         return prevIndex;
+//       }
+//     });
 //   };
 
-//   // Handle rating selection
 //   const handleRatingSelection = (elementId, rating) => {
 //     setResponses((prevResponses) => ({
 //       ...prevResponses,
 //       [elementId]: rating,
 //     }));
 
-//     // Add the rating to history
 //     setHistory((prevHistory) => [
 //       ...prevHistory,
 //       { type: 'input', response: `Rating: ${rating}` },
 //     ]);
 
+//     // Save the rating response to the backend
+//     saveResponse(elementId, rating);
+
 //     // Move to the next element
-//     setCurrentIndex((prevIndex) => prevIndex + 1);
+//     setCurrentIndex((prevIndex) => {
+//       if (prevIndex + 1 < formData.content.length) {
+//         return prevIndex + 1;
+//       } else {
+//         setFormSubmitted(true); // If it's the last element, mark the form as submitted
+//         return prevIndex;
+//       }
+//     });
 //   };
 
-//   // Render the current form element based on its type
 //   const renderElement = (element, index) => {
 //     switch (element.type) {
 //       case 'text':
 //         return (
 //           <div key={index} className={styles.bubble}>
-//             <span>{element.content}</span>
+//             <span>{loading ? '(....)' : element.content}</span>
+//             {!loading && setHistory((prevHistory) => [
+//               ...prevHistory,
+//               { type: 'bubble', response: element.content },
+//             ])}
+//             {!loading && setCurrentIndex((prevIndex) => {
+//               if (prevIndex + 1 < formData.content.length) {
+//                 return prevIndex + 1;
+//               } else {
+//                 setFormSubmitted(true);
+//                 return prevIndex;
+//               }
+//             })}
 //           </div>
 //         );
 //       case 'input':
+//         if (element.inputType === 'rating') {
+//           return renderRating(element, index); // Custom render function for ratings
+//         }
 //         return (
 //           <div key={index} className={styles.inputWrapper}>
-//             <label>{element.content || 'Input'}</label>
+//             {/* <label>{element.content || 'Input'}</label> */}
+//             <div className={styles.inputsNSend}>
 //             <input
 //               type={element.inputType || 'text'}
 //               placeholder={element.placeholder || 'Enter your response'}
@@ -80,26 +139,14 @@
 //               }
 //               className={styles.input}
 //             />
-//             <button
-//               onClick={handleInputSubmit}
-//               className={styles.sendButton}
-//             >
-//               Send
+//             <button onClick={handleInputSubmit} className={styles.sendButton}>
+//             <IoSend className={styles.sendIcon}/>
 //             </button>
-//           </div>
-//         );
-//       case 'image':
-//         return (
-//           <div key={index} className={styles.imageWrapper}>
-//             <img
-//               src={element.content}
-//               alt="Form Image"
-//               style={{ maxWidth: '100%', maxHeight: '300px', display: 'block', margin: '10px 0' }}
-//             />
+//             </div>
 //           </div>
 //         );
 //       case 'rating':
-//         return renderRating(element, index); // Separate render for rating
+//         return renderRating(element, index);
 //       case 'button':
 //         return (
 //           <div key={index} className={styles.buttonWrapper}>
@@ -113,94 +160,55 @@
 //     }
 //   };
 
-//   // Separate render for rating
-//   const renderRating = (element, index) => {
-//     return (
-//       <div key={index} className={styles.ratingWrapper}>
-//         <label>{element.content || 'Select a rating:'}</label>
-//         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-//           {Array.from(
-//             { length: element.range[1] - element.range[0] + 1 },
-//             (_, i) => element.range[0] + i
-//           ).map((num) => (
-//             <button
-//               key={num}
-//               type="button"
-//               onClick={() => handleRatingSelection(index, num)}
-//               style={{
-//                 padding: '5px 10px',
-//                 backgroundColor:
-//                   responses[index] === num ? '#4caf50' : '#e0e0e0',
-//                 color: responses[index] === num ? '#fff' : '#000',
-//                 border: '1px solid #ccc',
-//                 borderRadius: '4px',
-//                 cursor: 'pointer',
-//                 transition: 'background-color 0.3s ease',
-//               }}
-//             >
-//               {num}
-//             </button>
-//           ))}
-//         </div>
+//   const renderRating = (element, index) => (
+//     <div key={index} className={styles.ratingWrapper}>
+//       {/* <label>{element.content || 'Select a rating:'}</label> */}
+//       <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+//         {Array.from(
+//           { length: element.range[1] - element.range[0] + 1 },
+//           (_, i) => element.range[0] + i
+//         ).map((num) => (
+//           <button
+//             key={num}
+//             type="button"
+//             onClick={() => handleRatingSelection(index, num)}
+//             style={{
+//               padding: '5px 10px',
+//               backgroundColor: responses[index] === num ? '#4caf50' : '#e0e0e0',
+//               color: responses[index] === num ? '#fff' : '#000',
+//               border: '1px solid #ccc',
+//               borderRadius: '4px',
+//               cursor: 'pointer',
+//               transition: 'background-color 0.3s ease',
+//             }}
+//           >
+//             {num}
+//           </button>
+//         ))}
 //       </div>
-//     );
-//   };
-
-//   // Automatic movement for bubbles
-//   useEffect(() => {
-//     if (formData && currentIndex < formData.formElements.length) {
-//       const currentElement = formData.formElements[currentIndex];
-
-//       if (currentElement.type === 'text') {
-//         // For text bubbles, automatically add to history and move to the next element after 0.5 seconds
-//         setHistory((prevHistory) => [
-//           ...prevHistory,
-//           { type: 'bubble', response: currentElement.content },
-//         ]);
-//         setTimeout(() => {
-//           setCurrentIndex((prevIndex) => prevIndex + 1);
-//         }, 500);
-//       } else if (currentElement.type === 'image') {
-//         // For images, add to history and move to the next element after 0.5 seconds
-//         setHistory((prevHistory) => [
-//           ...prevHistory,
-//           { type: 'image', response: currentElement.content },
-//         ]);
-//         setTimeout(() => {
-//           setCurrentIndex((prevIndex) => prevIndex + 1);
-//         }, 500);
-//       }
-//     }
-//   }, [currentIndex, formData]);
+//     </div>
+//   );
 
 //   return (
 //     <div className={styles.formbotContainer}>
-//       {formData ? (
+//       {formData && Array.isArray(formData.content) && formData.content.length > 0 ? (
 //         <div className={styles.formWrapper}>
-//           <h2>{formData.formName || 'Untitled Form'}</h2>
+//           {/* <h2>{formData.name || 'Untitled Form'}</h2> */}
 
-//           {/* Show the history of all bubbles and inputs */}
+//           {/* Render the history elements */}
 //           {history.map((historyItem, index) => {
 //             if (historyItem.type === 'input') {
 //               return (
 //                 <div key={index} className={styles.inputWrapper}>
-//                   <span>{historyItem.response}</span>
+//                   <span className={styles.inputResponce}>{historyItem.response}</span>
 //                 </div>
 //               );
-//             } else if (historyItem.type === 'bubble') {
+//             }
+//             if (historyItem.type === 'bubble') {
 //               return (
 //                 <div key={index} className={styles.bubble}>
-//                   <span>{historyItem.response}</span>
-//                 </div>
-//               );
-//             } else if (historyItem.type === 'image') {
-//               return (
-//                 <div key={index} className={styles.imageWrapper}>
-//                   <img
-//                     src={historyItem.response}
-//                     alt="History Image"
-//                     style={{ maxWidth: '100%', maxHeight: '300px', display: 'block', margin: '10px 0' }}
-//                   />
+//                   <img id={styles.botProfile} src="../assets/formBot.png" alt="" />
+//                   <span className={styles.bubbleDialogue}>{historyItem.response}</span>
 //                 </div>
 //               );
 //             }
@@ -208,41 +216,12 @@
 //           })}
 
 //           {/* Render the current element */}
-//           {formData.formElements && formData.formElements.length > 0 && currentIndex < formData.formElements.length ? (
-//             formData.formElements[currentIndex].type === 'input' &&
-//             formData.formElements[currentIndex].inputType === 'rating' ? (
-//               <div>
-//                 <label>Select a rating:</label>
-//                 <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-//                   {Array.from(
-//                     { length: formData.formElements[currentIndex].range[1] - formData.formElements[currentIndex].range[0] + 1 },
-//                     (_, i) => formData.formElements[currentIndex].range[0] + i
-//                   ).map((num) => (
-//                     <button
-//                       key={num}
-//                       type="button"
-//                       onClick={() => handleRatingSelection(formData.formElements[currentIndex].id, num)}
-//                       style={{
-//                         padding: '5px 10px',
-//                         backgroundColor:
-//                           responses[formData.formElements[currentIndex].id] === num ? '#4caf50' : '#e0e0e0',
-//                         color: responses[formData.formElements[currentIndex].id] === num ? '#fff' : '#000',
-//                         border: '1px solid #ccc',
-//                         borderRadius: '4px',
-//                         cursor: 'pointer',
-//                         transition: 'background-color 0.3s ease',
-//                       }}
-//                     >
-//                       {num}
-//                     </button>
-//                   ))}
-//                 </div>
-//               </div>
-//             ) : (
-//               renderElement(formData.formElements[currentIndex], currentIndex)
-//             )
-//           ) : (
-//             <p>Thank you for completing the form!</p> // Display once all elements are completed
+//           {formData.content.map((element, index) =>
+//             index === currentIndex ? renderElement(element, index) : null
+//           )}
+
+//           {currentIndex >= formData.content.length && (
+//             <p>Thank you for completing the form!</p>
 //           )}
 //         </div>
 //       ) : (
@@ -259,11 +238,9 @@
 
 
 
-
-
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { IoSend } from "react-icons/io5";
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import styles from './pagesModuleCSS/FormBot.module.css';
@@ -337,30 +314,7 @@ const FormBot = () => {
     });
   };
 
-  const handleRatingSelection = (elementId, rating) => {
-    setResponses((prevResponses) => ({
-      ...prevResponses,
-      [elementId]: rating,
-    }));
 
-    setHistory((prevHistory) => [
-      ...prevHistory,
-      { type: 'input', response: `Rating: ${rating}` },
-    ]);
-
-    // Save the rating response to the backend
-    saveResponse(elementId, rating);
-
-    // Move to the next element
-    setCurrentIndex((prevIndex) => {
-      if (prevIndex + 1 < formData.content.length) {
-        return prevIndex + 1;
-      } else {
-        setFormSubmitted(true); // If it's the last element, mark the form as submitted
-        return prevIndex;
-      }
-    });
-  };
 
   const renderElement = (element, index) => {
     switch (element.type) {
@@ -388,7 +342,8 @@ const FormBot = () => {
         }
         return (
           <div key={index} className={styles.inputWrapper}>
-            <label>{element.content || 'Input'}</label>
+            {/* <label>{element.content || 'Input'}</label> */}
+            <div className={styles.inputsNSend}>
             <input
               type={element.inputType || 'text'}
               placeholder={element.placeholder || 'Enter your response'}
@@ -402,8 +357,9 @@ const FormBot = () => {
               className={styles.input}
             />
             <button onClick={handleInputSubmit} className={styles.sendButton}>
-              Send
+            <IoSend className={styles.sendIcon}/>
             </button>
+            </div>
           </div>
         );
       case 'rating':
@@ -411,20 +367,57 @@ const FormBot = () => {
       case 'button':
         return (
           <div key={index} className={styles.buttonWrapper}>
-            <button onClick={() => setFormSubmitted(true)} disabled={formSubmitted}>
+            {formSubmitted == true?<p id={styles.greet}>Thank you for completing the form!</p> :
+            <button onClick={() => setFormSubmitted(true)} disabled={formSubmitted}
+            style={{backgroundColor: formSubmitted === true ? '#c3c3c3' : '#1d50f7'}}
+              >
               {element.label || 'Submit'}
             </button>
+    }
           </div>
         );
       default:
         return null;
     }
+  
   };
-
+  const handleRatingSelection = (elementId, rating) => {
+    setResponses((prevResponses) => ({
+      ...prevResponses,
+      [elementId]: rating,
+    }));
+  };
+  
+  const handleSendRating = (elementId) => {
+    if (!responses[elementId]) {
+      alert('Please select a rating before sending!');
+      return;
+    }
+  
+    // Save the rating response to the backend
+    saveResponse(elementId, responses[elementId]);
+  
+    // Add the current rating to history
+    setHistory((prevHistory) => [
+      ...prevHistory,
+      { type: 'input', response: `Rating: ${responses[elementId]}` },
+    ]);
+  
+    // Move to the next element
+    setCurrentIndex((prevIndex) => {
+      if (prevIndex + 1 < formData.content.length) {
+        return prevIndex + 1;
+      } else {
+        setFormSubmitted(true); // If it's the last element, mark the form as submitted
+        return prevIndex;
+      }
+    });
+  };
+  
   const renderRating = (element, index) => (
-    <div key={index} className={styles.ratingWrapper}>
-      <label>{element.content || 'Select a rating:'}</label>
-      <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+    <div key={index} className={styles.ratingDiv}>
+      {/* Rating Buttons */}
+      <div className={styles.ratingScale}>
         {Array.from(
           { length: element.range[1] - element.range[0] + 1 },
           (_, i) => element.range[0] + i
@@ -433,42 +426,54 @@ const FormBot = () => {
             key={num}
             type="button"
             onClick={() => handleRatingSelection(index, num)}
+            className={styles.ratingScaleButtons}
             style={{
-              padding: '5px 10px',
-              backgroundColor: responses[index] === num ? '#4caf50' : '#e0e0e0',
-              color: responses[index] === num ? '#fff' : '#000',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              transition: 'background-color 0.3s ease',
+              backgroundColor: responses[index] === num ? '#fd9c1e' : '#1A5FFF',
             }}
           >
             {num}
           </button>
         ))}
       </div>
+      {/* Send Button */}
+      <button
+        type="button"
+        onClick={() => handleSendRating(index)}
+        style={{
+          marginTop: '10px',
+          padding: '8px 16px',
+          backgroundColor: '#1d50f7',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
+        <IoSend className={styles.sendIcon}/>
+      </button>
     </div>
   );
-
+  
   return (
     <div className={styles.formbotContainer}>
       {formData && Array.isArray(formData.content) && formData.content.length > 0 ? (
         <div className={styles.formWrapper}>
-          <h2>{formData.name || 'Untitled Form'}</h2>
+          {/* <h2>{formData.name || 'Untitled Form'}</h2> */}
 
           {/* Render the history elements */}
           {history.map((historyItem, index) => {
             if (historyItem.type === 'input') {
               return (
                 <div key={index} className={styles.inputWrapper}>
-                  <span>{historyItem.response}</span>
+                  <span className={styles.inputResponce}>{historyItem.response}</span>
                 </div>
               );
             }
             if (historyItem.type === 'bubble') {
               return (
                 <div key={index} className={styles.bubble}>
-                  <span>{historyItem.response}</span>
+                  <img id={styles.botProfile} src="../assets/formBot.png" alt="" />
+                  <span className={styles.bubbleDialogue}>{historyItem.response}</span>
                 </div>
               );
             }
@@ -492,8 +497,6 @@ const FormBot = () => {
 };
 
 export default FormBot;
-
-
 
 
 

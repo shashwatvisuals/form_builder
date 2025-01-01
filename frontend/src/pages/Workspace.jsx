@@ -249,6 +249,7 @@ import styles from '../pages/pagesModuleCSS/Workspace.module.css';
 
 function Workspace() {
   const backendURL = import.meta.env.VITE_BACKEND_URL; 
+  const frontendURL = import.meta.env.VITE_FRONTEND_URL;
   const location = useLocation();
   const { user, file, fileId, parentId } = location.state || {}; 
   const [formName, setFormName] = useState(file.name || 'Untitled');
@@ -385,7 +386,7 @@ console.log("new fileId", fileId)
         }
       );
       const id = response.data.id;
-      const shareableLink = `http://localhost:5173/formbot/${fileId}`;
+      const shareableLink = `${frontendURL}/formbot/${fileId}`;
       await navigator.clipboard.writeText(shareableLink);
       alert('Form link copied to clipboard!');
     } catch (error) {
