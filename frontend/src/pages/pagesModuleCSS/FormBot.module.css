@@ -1,12 +1,42 @@
+.formbotContainer {
+  width: 100vw;
+  padding-top: 120px;
+  padding-left: calc(30vw/2);
+  padding-right: calc(30vw/2);
+  /* background-color: #4caf50; */
+}
+
+
 .ratingWrapper {
     margin: 20px 0;
   }
   
+  .bubble {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+  }
+
+  .bubbleDialogue {
+    padding: 10px;
+    background-color: #d4d4d457;
+    border-radius: 3px;
+  }
+
   .ratingButtonsContainer {
     display: flex;
     gap: 10px;
   }
   
+  .inputResponce {
+    margin: 10px 0px;
+    padding: 10px;
+    background-color: #fd9c1e;
+    border-radius: 8px;
+    color: #ffffff;
+  }
+
   .ratingButton {
     padding: 10px 20px;
     font-size: 16px;
@@ -25,4 +55,118 @@
     background-color: #4caf50;
     color: white;
   }
+
+  #botProfile {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+  }
   
+
+  .inputWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+  }
+
+  .ratingWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+  }
+
+  .inputsNSend {
+    display: flex;
+    gap: 10px;
+  }
+
+  .inputsNSend input {
+    padding: 20px;
+    border: none;
+    box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.425);
+    border-radius: 8px;
+  }
+
+  .inputsNSend button {
+    width: 50px;
+    background-color: #1d50f7;
+    border-radius: 8px;
+    border: none;
+  }
+
+  .sendIcon {
+    height: 25px;
+    width: 25px;
+    color: #ffffff;
+  }
+
+  .ratingDiv {
+    display: flex;
+    justify-content: end;
+    gap: 10px;
+  }
+
+  .ratingScale {
+    padding: 5px 10px;
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.425);
+  }
+
+  .ratingScaleButtons {
+    padding: 5px 10px ;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 'background-color 0.3s ease';
+    color: #ffffff;
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+  }
+
+  .buttonWrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  .buttonWrapper button {
+    height: 40px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding: 0px 20px;
+    border-radius: 6px;
+    background-color: #1d50f7;
+    border: none;
+    color: #ffffff;
+  }
+
+  #greet {
+    height: 40px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding: 10px;
+    background-color: #4caf50;
+    color: #ffffff;
+    border-radius: 7px;
+  } 
+
+  .imageWrapper img{
+    height: 250px;
+    width: 250px;
+  }
+
+  .imageHistory img{
+    height: 250px;
+    width: 250px;
+  }
+
+  @media (max-width: 600px) {
+    .formbotContainer {
+      width: 100vw;
+      padding-top: 20px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }

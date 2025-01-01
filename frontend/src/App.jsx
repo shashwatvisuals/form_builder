@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Settings from './pages/Settings';
 import Workspace from './pages/Workspace';
 import FormBot from './pages/FormBot';
+import Response from './pages/Response';
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       <Route path="/settings" element={<Settings />} />
       <Route path="/workspace" element={<Workspace />} />
       <Route path="/formbot/:formId" element={<FormBot />} />
+      <Route path="/response/:formId" element={<Response />} />
     </Routes>
   )
 }

@@ -68,6 +68,7 @@ html {
     border: 1px solid #636364;
     padding: 0px 10px;
     color: #ffffff;
+    outline: none;
 }
 
 #orSpan {

@@ -1,4 +1,10 @@
 import React, { useState } from "react";
+import { IoLogInOutline } from "react-icons/io5";
+import { FaRegUser } from "react-icons/fa";
+import { MdOutlineLock } from "react-icons/md";
+import { IoEyeOffOutline } from "react-icons/io5";
+import { MdOutlineRemoveRedEye } from "react-icons/md";
+import styles from './pagesModuleCSS/Settings.module.css'
 
 function Settings() {
     const token = localStorage.getItem("token");
@@ -57,13 +63,15 @@ function Settings() {
   };
 
   return (
-    <div className="settings">
-      <h2>Update Your Details</h2>
-      <form onSubmit={handleSubmit}>
+    <div className={styles.settingsMain}>
+      <div className={styles.settings}>
+      <h2 id={styles.heading}>Settings</h2>
+      <form className={styles.form} onSubmit={handleSubmit}>
         {/* Username Field */}
-        <div>
-          <label>Username:</label>
-          <input
+        <div className={styles.userName}>
+          <label><FaRegUser/></label>
+          <input className={styles.inputField}
+            placeholder="Name"
             type="text"
             name="username"
             value={userDetails.username}
@@ -72,9 +80,10 @@ function Settings() {
         </div>
 
         {/* Email Field */}
-        <div>
-          <label>Email:</label>
-          <input
+        <div className={styles.userName}>
+          <label><MdOutlineLock/></label>
+          <input className={styles.inputField}
+            placeholder="Update Email"
             type="email"
             name="email"
             value={userDetails.email}
@@ -83,43 +92,43 @@ function Settings() {
         </div>
 
         {/* Password Fields */}
-        <div>
-          <label>Old Password:</label>
-          <div className="password-field">
-            <input
+        <div className={styles.passwordDiv}>
+          <label><MdOutlineLock/></label>
+            <input className={styles.inputField}
+              placeholder="Old Password"
               type={showPassword ? "text" : "password"}
               name="oldPassword"
               value={userDetails.oldPassword}
               onChange={handleChange}
             />
             <button
+            className={styles.eyeButton}
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
             >
-              {showPassword ? "Hide" : "Show"}
+              {showPassword ? <MdOutlineRemoveRedEye /> :  <IoEyeOffOutline />}
             </button>
-          </div>
         </div>
-        <div>
-          <label>New Password:</label>
-          <div className="password-field">
-            <input
+        <div className={styles.passwordDiv}>
+          <label><MdOutlineLock/></label>
+            <input className={styles.inputField}
+              placeholder="New Password"
               type={showPassword ? "text" : "password"}
               name="newPassword"
               value={userDetails.newPassword}
               onChange={handleChange}
             />
-            <button
+            <button className={styles.eyeButton}
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
             >
-              {showPassword ? "Hide" : "Show"}
+              {showPassword ? <MdOutlineRemoveRedEye /> :  <IoEyeOffOutline />}
             </button>
-          </div>
         </div>
-
-        <button type="submit">Update Details</button>
       </form>
+      <button className={styles.updateButton} type="submit">Update</button>
+      </div>
+      <button id={styles.logout}> <span><IoLogInOutline id={styles.logoutIcon}/></span> log out</button>
     </div>
   );
 }

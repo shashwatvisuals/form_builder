@@ -1,317 +1,218 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from './Navbar';
-import styles from './pagesModuleCSS/Home.module.css'
+import { RiDeleteBin6Line } from "react-icons/ri";
 import { AiOutlineFolderAdd } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa6";
-import Modal from 'react-modal';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import Navbar from './Navbar';
+import styles from './pagesModuleCSS/Home.module.css';
 
-Modal.setAppElement('#root');
-
-const Home = () => {
-  const backendURL = import.meta.env.VITE_BACKEND_URL; 
+function Home() {
   const [user, setUser] = useState(null);
-  const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
-  const [parentId, setParentId] = useState('')
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState('');
-  const [currentFolderIndex, setCurrentFolderIndex] = useState(null);
-  const [inputName, setInputName] = useState('');
+  const [folders, setFolders] = useState([]);
+  const [parentId, setParentId] = useState(null);
+  const [modalType, setModalType] = useState(null);
+  const [newItemName, setNewItemName] = useState('');
+  const [newItemType, setNewItemType] = useState('folder');
+  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   const navigate = useNavigate();
 
-  // Load user from localStorage when component mounts and fetch user details
+  const token = localStorage.getItem('authToken');
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
+
+  const axiosInstance = axios.create({
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    const token = localStorage.getItem('authToken');
-    console.log('Token:', token);
-
-    if (!userData || !token) {
-      navigate('/signin'); // Redirect to login if no user or token
-    } else {
-      const parsedUser = JSON.parse(userData);
-      console.log('User data from localStorage:', parsedUser);
-      setUser(parsedUser);
-      fetchUserDetails(parsedUser._id, token); // Fetch full user details if user is available
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (userData) {
+      setUser(userData);
     }
-  }, [navigate]);
+  }, []);
 
-  const fetchUserDetails = async (userId, token) => {
+  const fetchFolders = async () => {
     try {
-      const response = await fetch(`${backendURL}/api/user/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setUser(data.user); // Update user state with the full user data from API
-      } else {
-        toast.error(data.message || 'Failed to fetch user details');
-        navigate('/signin');
-      }
+      const response = await axiosInstance.get(`${backendURL}/api/files/${user.userId}/files`);
+      const fetchedFolders = response.data.filter(item => item.type === 'folder');
+      setFolders(fetchedFolders);
     } catch (error) {
-      console.error('Error fetching user details:', error);
-      toast.error('An error occurred. Please try again.');
-      navigate('/signin');
+      console.error('Error fetching folders:', error);
     }
   };
 
-  // Handle Logout
+  const fetchFiles = async () => {
+    try {
+      const response = await axiosInstance.get(`${backendURL}/api/files/${user.userId}/files`, {
+        params: { parentId },
+      });
+      const fetchedFiles = response.data.filter(item => item.type === 'file');
+      setFiles(fetchedFiles);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchFolders();
+      fetchFiles();
+    }
+  }, [parentId, user]);
+
+  const handleCreate = async () => {
+    if (!newItemName.trim()) {
+      alert("Name is required to create a file or folder.");
+      return;
+    }
+
+    const existingItems = newItemType === 'file' ? files : folders;
+    const isDuplicate = existingItems.some(
+      (item) => item.name.toLowerCase() === newItemName.trim().toLowerCase()
+    );
+
+    if (isDuplicate) {
+      alert(`${newItemType === 'file' ? 'File' : 'Folder'} name must be unique.`);
+      return;
+    }
+
+    try {
+      const payload = {
+        userId: user.userId,
+        name: newItemName.trim(),
+        type: newItemType,
+        parentId: newItemType === 'folder' ? null : parentId,
+      };
+
+      await axiosInstance.post(`${backendURL}/api/files/save`, payload);
+      setNewItemName('');
+      setModalType(null);
+
+      if (newItemType === 'folder') {
+        fetchFolders();
+      } else {
+        fetchFiles();
+      }
+    } catch (error) {
+      console.error(`Error creating ${newItemType}:`, error);
+    }
+  };
+
+  const enterFolder = (folderId) => {
+    setSelectedFolder(folderId === selectedFolder ? null : folderId);
+    setParentId(folderId === selectedFolder ? null : folderId);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('authToken');
     navigate('/signin');
   };
 
-  // Modal handling for folders and files
-  const openModal = (type, folderIndex = null, parentId=null) => {
-    console.log("parentId", parentId)
-    setModalType(type);
-    setCurrentFolderIndex(folderIndex);
-    setInputName('');
-    setIsModalOpen(true);
-    setParentId(parentId)
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  // Handle file/folder creation
-  const handleCreate = () => {
-    if (inputName.trim() === '') {
-      toast.error('Name cannot be empty');
-      return;
-    }
-
-    if (modalType === 'folder') {
-      if (folders.some((folder) => folder.name === inputName)) {
-        toast.error('Folder name already exists');
-        return;
-      }
-      const newFolder = { name: inputName, type: 'folder', files: [] };
-      setFolders([...folders, newFolder]);
-      saveFileOrFolder(user._id, newFolder, 'folder');
-    } else if (modalType === 'file') {
-      if (currentFolderIndex === null) {
-        if (files.some((file) => file.name === inputName)) {
-          toast.error('File name already exists');
-          return;
-        }
-        const newFile = { name: inputName, type: 'file', parentId:parentId };
-        setFiles([...files, newFile]);
-        saveFileOrFolder(user._id, newFile, 'file');
-      } else {
-        const updatedFolders = [...folders];
-        const folder = updatedFolders[currentFolderIndex];
-        if (folder.files.some((file) => file.name === inputName)) {
-          toast.error('File name already exists in this folder');
-          return;
-        }
-        const newFile = { name: inputName, type: 'file', parentId: folder._id };
-        folder.files.push(newFile);
-        setFolders(updatedFolders);
-        saveFileOrFolder(user._id, newFile, 'file');
-      }
-    }
-
-    closeModal();
-    toast.success(`${modalType === 'folder' ? 'Folder' : 'File'} created successfully`);
-  };
-
-  const saveFileOrFolder = async (userId, item, type) => {
-    console.log("item.parentid",item.parentId)
-    const token = user?.token || localStorage.getItem('authToken');
-    if (!token) {
-      toast.error('User is not authenticated. Please log in again.');
-      navigate('/signin');
-      return;
-    }
-
-    try {
-      const payload = {
-        userId,
-        name: item.name, // Include `name`
-        type,
-        
-      };
-      if (type === 'file' && item.content) {
-        payload.content = item.content; // Add `content` if provided (optional)
-      }
-
-      if (type === 'file' && item.parentId) {
-        payload.parentId = item.parentId; // Add `parentId` if the file is in a folder
-      }
-
-      const response = await fetch(`${backendURL}/api/files/save`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        console.log(`${type} saved successfully:`, data);
-      } else {
-        toast.error(data.message || 'Failed to save the file or folder.');
-      }
-    } catch (error) {
-      console.error('Error saving file or folder:', error);
-      toast.error('An error occurred. Please try again.');
-    }
-  };
-
-  // Fetch files and folders from the server
-  const fetchFilesAndFolders = async (userId) => {
-    const token = user?.token || localStorage.getItem('authToken');
-    if (!token) {
-      toast.error('User is not authenticated. Please log in again.');
-      navigate('/signin');
-      return [];
-    }
-
-    try {
-      const response = await fetch(`${backendURL}/api/files/${userId}/files`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setFiles(data.data)
-        console.log('Fetched files and folders:', data.data);
-        return data.data; // Ensure the API returns data in this structure.
-      } else {
-        toast.error(data.message || 'Failed to fetch files.');
-        return [];
-      }
-    } catch (error) {
-      console.error('Error fetching files:', error);
-      toast.error('An error occurred. Please try again.');
-      return [];
-    }
-  };
-
-  // Fetch files and folders once user data is available
-  useEffect(() => {
-    if (user) {
-      fetchFilesAndFolders(user._id).then((fetchedItems) => {
-        if (Array.isArray(fetchedItems) && fetchedItems.length > 0) {
-          const folders = fetchedItems.filter((item) => item.type === 'folder');
-          const files = fetchedItems.filter((item) => item.type === 'file' && !item.parentId);
-
-          // Nest files into their respective folders if `parentId` exists
-          folders.forEach((folder) => {
-            folder.files = fetchedItems.filter((file) => file.parentId === folder._id);
-          });
-
-          setFolders(folders);
-          setFiles(files); // Standalone files without parentId
-        } else {
-          console.warn('No items fetched:', fetchedItems);
-          setFolders([]);
-          setFiles([]);
-        }
-      }).catch((error) => {
-        console.error('Error fetching files:', error);
-      });
-    }
-  }, [user]);
-
-  if (!user) {
-    return <p>Loading...</p>; // Handle initial loading state
-  }
-
   const handleWorkspaceNavigation = (fileId) => {
     const selectedFile = files.find((file) => file._id === fileId);
-    // console.log("files", files)
-    console.log("file._id", fileId)
-    console.log("selectedFile", selectedFile)
-    navigate('/workspace', { state: { 
-      user,
-      file: selectedFile,
-      fileId,
-      parentId: parentId
-     } });
+    navigate('/workspace', { state: { user, file: selectedFile, fileId, parentId } });
   };
-  
+
+  const handleDelete = async () => {
+    try {
+      if (selectedItem) {
+        await axiosInstance.delete(`${backendURL}/api/files/${selectedItem._id}`);
+        setModalType(null);
+        setSelectedItem(null);
+        fetchFiles();
+        fetchFolders();
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
+  };
+
+  const openDeleteModal = (item) => {
+    setSelectedItem(item);
+    setModalType('delete');
+  };
 
   return (
     <div className={styles.mainContainer}>
       {user && <Navbar userName={user.username} onLogout={handleLogout} />}
-<div className={styles.mainFolder}>
-      <div className="controls">
-        <button onClick={() => openModal('folder')}> <span><AiOutlineFolderAdd /></span> Create Folder</button>
-      </div>
-      <div className={styles.fileStructure}>
-        {folders.map((folder, index) => (
-          <div key={index} className={styles.folder}>
+
+      <div className={styles.filesNFolderContainer}>
+        <div className={styles.folderCreateContainer}>
+          <button className={styles.createFolderButton} onClick={() => { setNewItemType('folder'); setModalType('create'); }}>
+            <span><AiOutlineFolderAdd /></span> Create a Folder
+          </button>
+
+          {folders.map((folder) => (
             <div
+              key={folder._id}
               className={styles.folderName}
-              // data-parentid = {folder.parentId}
-              onClick={() => openModal('file', index, folder.parentId)}
+              onClick={() => enterFolder(folder._id)}
+              style={{
+                backgroundColor: selectedFolder === folder._id ? '#6d61619d' : '',
+                color: selectedFolder === folder._id ? '#000000' : '',
+              }}
             >
               {folder.name}
+              <button className={styles.deleteFolderButton} onClick={(e) => {e.stopPropagation();openDeleteModal(folder)}}>
+                <RiDeleteBin6Line />
+              </button>
             </div>
-            <div className="files">
-              {folder.files.map((file, idx) => (
-                <div onClick={() => handleWorkspaceNavigation(file._id,file.name)} key={idx} className="file">
-                  {file.name}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
-</div>
-        <button onClick={() => openModal('file')}> <span><FaPlus />
-        </span> Create a typebot</button>
-        {files.map((file, index) => (
-          <div onClick={() => handleWorkspaceNavigation(file._id,file.name)} key={index} className="file">
-            {file.name}
-          </div>
-        ))}
+        <div className={styles.fileCreateContainer}>
+          <button className={styles.createFileButton} onClick={() => { setNewItemType('file'); setModalType('create'); }}>
+            <span><FaPlus /></span> Create a Typebot
+          </button>
+
+          {files.map((file) => (
+            <div key={file._id} className={styles.item} onClick={() => handleWorkspaceNavigation(file._id)}>
+              {file.name}
+              <button className={styles.deleteFileButton} onClick={(e) => {e.stopPropagation();openDeleteModal(file)}}>
+                <RiDeleteBin6Line />
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        contentLabel="Create Folder/File"
-      >
-        <h2>{modalType === 'folder' ? 'Create Folder' : 'Create File'}</h2>
-        <input
-          type="text"
-          placeholder={`Enter ${modalType === 'folder' ? 'Folder' : 'File'} Name`}
-          value={inputName}
-          onChange={(e) => setInputName(e.target.value)}
-        />
-        <button onClick={handleCreate}>
-          {modalType === 'folder' ? 'Create Folder' : 'Create File'}
-        </button>
-        <button onClick={closeModal}>Cancel</button>
-      </Modal>
+      {modalType === 'create' && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h3>Create New {newItemType === 'file' ? 'Typebot' : 'Folder'}</h3>
+            <input
+              type="text"
+              placeholder="Enter name"
+              value={newItemName}
+              onChange={(e) => setNewItemName(e.target.value)}
+            />
+            <div className={styles.createNCancel}>
+              <button id={styles.create} onClick={handleCreate}>Create</button>
+              <button onClick={() => setModalType(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <ToastContainer />
+      {modalType === 'delete' && selectedItem && (
+        <div className={styles.modal}>
+          <div className={styles.deleteModalContent}>
+            <h3>Are you sure you want to delete this {selectedItem.type}?</h3>
+            <div className={styles.createNCancel}>
+            <button id={styles.delete} onClick={handleDelete}>Delete</button>
+            <button onClick={() => setModalType(null)}>Cancel</button>
+          </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
+}
 
 export default Home;
-
-
-
-
-
-
-
-
-
 

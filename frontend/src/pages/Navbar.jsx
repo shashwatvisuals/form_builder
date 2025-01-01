@@ -64,6 +64,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './pagesModuleCSS/Navbar.module.css';
 import { Link, useNavigate } from "react-router-dom";
+import { IoIosArrowDown } from "react-icons/io";
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -144,8 +145,9 @@ const Navbar = ({ userName, onLogout }) => {
       <div className={styles.navbarActions}>
         <div className={styles.dropdownDiv}>
         <div className={styles.dropdown}>
-          <button className="dropdown-toggle" onClick={toggleDropdown}>
+          <button className={styles.dropdownToggle} onClick={toggleDropdown}>
             {userName}'s workspace
+            <span><IoIosArrowDown /></span>
           </button>
           {isDropdownOpen && (
             <ul className={styles.dropdownMenu}>
@@ -161,70 +163,65 @@ const Navbar = ({ userName, onLogout }) => {
           )}
         </div>
         </div>
-        {/* <button className={"theme-toggle"} onClick={toggleTheme}>
-          {theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme'}
-        </button> */}
-<div className={styles.themeDiv}>
-<p>Light</p>
-<div className={styles.themeSwitch}>
-  <label className={styles.themeSwitch}>
-    <input
-      type="checkbox"
-      checked={theme === 'dark'}
-      onChange={toggleTheme}
-    />
-    <span className={styles.slider}></span>
-  </label>
-</div>
-<p>Dark</p>
-</div>
+
+      <div className={styles.themeDiv}>
+      <p>Light</p>
+      <div className={styles.themeSwitch}>
+        <label className={styles.themeSwitch}>
+          <input
+            type="checkbox"
+            checked={theme === 'dark'}
+            onChange={toggleTheme}
+          />
+          <span className={styles.slider}></span>
+        </label>
+      </div>
+      <p>Dark</p>
+      </div>
 
 
-        <button className="share-button" onClick={() => setIsShareModalOpen(true)}>Share</button>
+        <button className={styles.shareButton} onClick={() => setIsShareModalOpen(true)}>Share</button>
       </div>
 
       {/* Share Modal */}
       {isShareModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
           <ToastContainer />
             <button
-              className="modal-close"
+              className={styles.modalClose}
               onClick={() => setIsShareModalOpen(false)}
             >
               &times;
             </button>
-            <h2>Share Workbook</h2>
-
-            {/* Shared Drop-Down */}
             <div>
-              <label htmlFor="permission">Permission: </label>
-              <select
+              
+              <div className={styles.permissionMain}>
+              <h3>Invite by Email</h3>
+              <div className={styles.selectDiv}>
+              <select 
                 id="permission"
                 value={permission}
                 onChange={(e) => setPermission(e.target.value)}
               >
-                <option value="view">View Only</option>
-                <option value="edit">Can Edit</option>
+                <option className={styles.option} value="view">View</option>
+                <option className={styles.option} value="edit">Edit</option>
               </select>
+              </div>
             </div>
-
-            {/* Invite via Email */}
-            <div>
-              <h3>Invite via Email</h3>
               <input
                 type="email"
                 placeholder="Enter email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <button onClick={handleInvite}>Invite</button>
+              <button className={styles.linkButton} onClick={handleInvite}>Invite</button>
             </div>
 
             {/* Share Link */}
             <div>
-              <h3>Share Link</h3>
-              <button onClick={handleGenerateLink}>Generate Link</button>
+              <h3 id= {styles.invite}>Invite by Link</h3>
+              <button className={styles.linkButton} onClick={handleGenerateLink}>Generate Link</button>
               {sharedLink && (
                 <p>
                   Copy this link: <span>{sharedLink}</span>

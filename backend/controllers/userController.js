@@ -31,6 +31,7 @@ const loginUser = async (req, res) => {
         success: true,
         token,
         user: {
+          userId: user._id,
           username: user.username, // Add user name to the response
           email: user.email,
         },

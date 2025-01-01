@@ -6,8 +6,9 @@ import userRouter from "./routes/userRoute.js"
 import fileRoutes from './routes/fileRoute.js';
 import protectedRouter from "./routes/protectedroute.js";
 import formRouter from "./routes/formRoute.js";
+import statsRoutes from "./routes/statsRoutes.js"
 
-const allowedOrigins = ['http://localhost:5173'];
+const allowedOrigins = ['https://form-builder-frontend-6o3j.onrender.com'];
 
 // //app config
 const app = express()
@@ -37,6 +38,7 @@ app.use("/api/user", userRouter)
 app.use('/api/files', fileRoutes);
 app.use("/api/protected", protectedRouter);
 app.use("/api/forms", formRouter);
+app.use('/api/stats', statsRoutes);
 
 
 

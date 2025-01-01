@@ -62,13 +62,15 @@ export const saveFilledForm = async (req, res) => {
 };
 
 export const getFilledForms = async (req, res) => {
-  const { prototypeFormId } = req.params;
+  const { formId } = req.params;
+  console.log("Received formId:", formId); 
 
   try {
-    const filledForms = await filledFormModel.find({ prototypeFormId });
-
+    const filledForms = await filledFormModel.find({ formId });
+    
     res.status(200).json({ success: true, data: filledForms });
   } catch (error) {
+    console.error("Error fetching filled forms:", error);  // Log the error
     res.status(500).json({ success: false, message: "Error fetching filled forms", error });
   }
 };
@@ -87,39 +89,6 @@ export const getPrototype = async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching form", error });
   }
 };
-
-// export const saveResponse = async (req, res) => {
-//   const { response } = req.body;
-  
-//   const { formId } = req.params;
-//   const elementId = formId
-//   console.log('Received formId:', req.params); 
-//   console.log('Received req.body:', req.body); 
-//   console.log('Received elementId:', elementId); 
-//   console.log('Received response:', response);
-
-//   if (elementId === undefined || !response) {
-//     console.error("Missing required fields:", { elementId, response });
-//     return res.status(400).json({ success: false, message: "Missing required fields" });
-//   }
-
-//   try {
-//     console.log("Attempting to save response...");
-//     let userResponse = await filledFormModel.findOne({ formId});
-
-//     if (!userResponse) {
-
-//       userResponse = new filledFormModel({ formId, responses: [] });
-//     }
-
-//     userResponse.responses.push({ elementId, response });
-//     await userResponse.save();
-
-//     res.status(200).json({ success: true, message: "Response saved successfully" });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: "Error saving response", error });
-//   }
-// };
 
 
 export const saveResponse = async (req, res) => {
@@ -165,5 +134,4 @@ export const saveResponse = async (req, res) => {
     res.status(500).json({ success: false, message: "Error saving response", error });
   }
 };
-
 
