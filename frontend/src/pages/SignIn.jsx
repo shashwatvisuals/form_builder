@@ -7,7 +7,7 @@ import styles from './pagesModuleCSS/SignIn.module.css';
 
 function SignIn() {
   const navigate = useNavigate();
-  const backendURL = import.meta.env.VITE_BACKEND_URL; // Your backend URL
+  const backendURL = import.meta.env.VITE_BACKEND_URL; 
   const [isSignUp, setIsSignUp] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [signUpData, setSignUpData] = useState({

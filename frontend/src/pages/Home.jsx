@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 Modal.setAppElement('#root');
 
 const Home = () => {
+  const backendURL = import.meta.env.VITE_BACKEND_URL; 
   const [user, setUser] = useState(null);
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
@@ -39,7 +40,7 @@ const Home = () => {
 
   const fetchUserDetails = async (userId, token) => {
     try {
-      const response = await fetch('http://localhost:4000/api/user/profile', {
+      const response = await fetch(`${backendURL}/api/user/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -146,7 +147,7 @@ const Home = () => {
         payload.parentId = item.parentId; // Add `parentId` if the file is in a folder
       }
 
-      const response = await fetch('http://localhost:4000/api/files/save', {
+      const response = await fetch(`${backendURL}/api/files/save`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -177,7 +178,7 @@ const Home = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:4000/api/files/${userId}/files`, {
+      const response = await fetch(`${backendURL}/api/files/${userId}/files`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -68,6 +68,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 
 const Navbar = ({ userName, onLogout }) => {
+  const backendURL = import.meta.env.VITE_BACKEND_URL; 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [theme, setTheme] = useState('light');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -88,7 +89,7 @@ const Navbar = ({ userName, onLogout }) => {
     try {
       const token = localStorage.getItem('authToken'); // Assuming token is stored in localStorage
       const response = await axios.post(
-        'http://localhost:4000/api/files/share/invite',
+        `${backendURL}/api/files/share/invite`,
         { email, permission, type: 'email' },
         {
           headers: {
@@ -107,7 +108,7 @@ const Navbar = ({ userName, onLogout }) => {
     try {
       const token = localStorage.getItem('authToken'); // Assuming token is stored in localStorage
       const { data } = await axios.post(
-        'http://localhost:4000/api/files/share/link',
+        `${backendURL}/api/files/share/link`,
         { permission, type: 'link' },
         {
           headers: {

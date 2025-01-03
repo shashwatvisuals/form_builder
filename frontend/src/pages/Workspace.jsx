@@ -248,6 +248,7 @@ import axios from 'axios';
 import styles from '../pages/pagesModuleCSS/Workspace.module.css';
 
 function Workspace() {
+  const backendURL = import.meta.env.VITE_BACKEND_URL; 
   const location = useLocation();
   const { user, file, fileId, parentId } = location.state || {}; 
   const [formName, setFormName] = useState(file.name || 'Untitled');
@@ -279,7 +280,7 @@ console.log("new fileId", fileId)
         const token = localStorage.getItem('token');
         try {
           const response = await axios.get(
-            `http://localhost:4000/api/forms/${fileId}`, // Get form by ID
+            `${backendURL}/api/forms/${fileId}`, // Get form by ID
             {
               headers: { Authorization: `Bearer ${token}` },
             }
@@ -341,7 +342,7 @@ console.log("new fileId", fileId)
   
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/forms/prototype/${fileId}`,
+        `${backendURL}/api/forms/prototype/${fileId}`,
         formPrototype,
         {
           headers: {
@@ -377,7 +378,7 @@ console.log("new fileId", fileId)
 
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/forms/prototype/${fileId}`,
+        `${backendURL}/api/forms/prototype/${fileId}`,
         formPrototype,
         {
           headers: { Authorization: `Bearer ${token}` },

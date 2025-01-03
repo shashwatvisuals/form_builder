@@ -269,6 +269,7 @@ import axios from 'axios';
 import styles from './pagesModuleCSS/FormBot.module.css';
 
 const FormBot = () => {
+  const backendURL = import.meta.env.VITE_BACKEND_URL; 
   const { formId } = useParams();
   const [formData, setFormData] = useState(null);
   const [sessionId] = useState(uuidv4());
@@ -282,7 +283,7 @@ const FormBot = () => {
   useEffect(() => {
     const fetchForm = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/forms/${formId}`);
+        const response = await axios.get(`${backendURL}/api/forms/${formId}`);
         console.log('Form data:', response.data.data);
         setElementId(response.data.data._id);
         setFormData(response.data.data);
@@ -299,7 +300,7 @@ const FormBot = () => {
   const saveResponse = async (elementId, response) => {
     try {
       const payload = { elementId, response, sessionId };
-      await axios.post(`http://localhost:4000/api/forms/${formId}/responses`, payload);
+      await axios.post(`${backendURL}/api/forms/${formId}/responses`, payload);
       console.log('Response saved:', response);
     } catch (error) {
       console.error('Error saving response:', error.response ? error.response.data : error.message);
