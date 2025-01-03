@@ -1,0 +1,297 @@
+/* .ratingPreviewButtons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .ratingPreviewButtons button {
+    padding: 5px 10px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .ratingPreviewButtons button:hover {
+    background-color: #4caf50;
+    color: white;
+  }
+   */
+   body[data-theme="light"] {
+    background-color: white;
+    color: black;
+  }
+  
+  /* Dark theme styles */
+  body[data-theme="dark"] {
+    background-color: #1F1F23;
+    color: white;
+  }
+  
+  /* Optional smooth transition */
+  body {
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .themeDiv{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .themeSwitch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+  }
+  
+  .themeSwitch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 23px;
+    left: 6px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: #1A5FFF;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  height: 70px;
+  width: 100vw;
+  align-items: center;
+  padding: 0px 30px;
+  border-bottom: 1.5px solid #65656581;
+}
+
+body[data-theme="dark"] .navbar {
+  background-color: #18181B; 
+}
+
+.formName input{
+  border: none;
+  height: 25px;
+  width: 200px;
+  /* background-color: #37373eac; */
+  color: #ffffff;
+  border: 1px solid #858585;
+  color: #27272A;
+  border-radius: 3px;
+  padding: 0px 5px;
+}
+
+.flow {
+  background-color: transparent;
+  color: #7EA6FF;
+  border: 1px solid #7EA6FF;
+  border-radius: 5px;
+  height: 30px;
+  width: 60px;
+}
+
+.response {
+  border: none;
+  background-color: transparent;
+}
+
+.flowNResponseDiv {
+  display: flex;
+  gap: 8px;
+}
+
+.themeNShareDiv {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.shareButton {
+  background-color: #1A5FFF;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  height: 30px;
+  width: 70px;
+}
+
+.saveButton {
+  height: 30px;
+  width: 70px;
+  background-color: #4ADE80CC;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+}
+
+.Xbutton {
+  background-color: transparent;
+  border: none;
+  color: #F55050;
+}
+
+.bubblesNInputs {
+  display: flex;
+  flex-direction: row;
+}
+
+.selection {
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  border: 1px solid #00000029;
+  border-radius: 10px;
+
+}
+
+body[data-theme="dark"] .selection {
+  background-color: #18181B; 
+}
+
+.bubblesMain {
+  display: flex;
+  flex-direction: column;
+  padding-top: 70px;
+}
+
+.bubblesMain h3 {
+  padding-left: 10px;
+}
+
+.bubbles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 20px 10px;
+}
+
+.bubbles button {
+  height: 40px;
+  width: 150px;
+  border: 1px solid #27272A;
+  background-color: #ffffff;
+  /* background-color: #1F1F23; */
+  border-radius: 5px;
+  /* color: #ffffff; */
+  color: #000000;
+
+}
+
+body[data-theme="dark"] .bubbles button {
+  background-color: #18181B; 
+  color: #ffffff;
+}
+
+.inputsMain {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputsMain h3 {
+  padding-left: 10px;
+}
+
+.inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 20px 10px;
+}
+
+.inputs button {
+  height: 40px;
+  width: 150px;
+  border: 1px solid #27272A;
+  background-color: #ffffff;
+  border-radius: 5px;
+  color: #ffffff;
+  color: #000000;
+}
+
+body[data-theme="dark"] .inputs button {
+  background-color: #18181B; 
+  color: #ffffff;
+}
+
+.selectedDivMain {
+  padding-top: 40px;
+  width: calc(100vw - 350px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.responseDiv {
+  display: flex;
+  justify-content: center;
+  /* background-color: #139297; */
+}
+
+.selectedBubblesNInputs {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.formElement {
+  border: 1px solid #747474;
+  display: flex;
+  height: 100px;
+  width: 250px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.formElement input {
+  height: 40px;
+  width: 170px;
+  padding: 0px 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #D6D6D6;
+
+}
+
+body[data-theme="dark"] .formElement {
+  background-color: #18181B; 
+}
+
+body[data-theme="dark"] .formElement input {
+  background-color: #18181B; 
+  color: #ffffff;
+}
+

@@ -1,5 +1,6 @@
 import express from 'express';
 import { saveFileOrFolder, getFilesAndFolders} from '../controllers/fileController.js';
+import { getPrototype } from '../controllers/formController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -10,6 +11,7 @@ const router = express.Router();
  * @access  Private
  */
 router.post('/save', protect, saveFileOrFolder);
+// router.put('/save', protect, saveFileOrFolder);
 
 /**
  * @route   GET /api/files/:userId/files
@@ -17,6 +19,7 @@ router.post('/save', protect, saveFileOrFolder);
  * @access  Private
  */
 router.get('/:userId/files', protect, getFilesAndFolders);
+router.get('/:id',getPrototype)
 
 export default router;
 

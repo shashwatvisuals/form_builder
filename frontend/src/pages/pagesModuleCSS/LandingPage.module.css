@@ -42,6 +42,7 @@
     color: #7EA6FF;
     border: 1px solid #7EA6FF;
     background-color: transparent;
+    cursor: pointer;
 }
 
 #fromBotButton {
@@ -51,6 +52,7 @@
     background-color: #1A5FFF;
     color: #ffffff;
     border: none;
+    cursor: pointer;
 }
 
 .upperMiddle {

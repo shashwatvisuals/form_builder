@@ -4,6 +4,8 @@ import LandingPage from './pages/LandingPage';
 import SignIn from './pages/SignIn';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
+import Workspace from './pages/Workspace';
+import FormBot from './pages/FormBot';
 
 
 function App() {
@@ -13,6 +15,8 @@ function App() {
       <Route path="/signin" element={<SignIn />} />
       <Route path="/home" element={<Home />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/workspace" element={<Workspace />} />
+      <Route path="/formbot/:formId" element={<FormBot />} />
     </Routes>
   )
 }

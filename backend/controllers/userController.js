@@ -45,19 +45,40 @@ const loginUser = async (req, res) => {
 
 
 
+  // const getUserDetails = async (req, res) => {
+  //   try {
+  //     const user = await userModel.findById(req.user.id).select('-password'); // Exclude password from response
+  //     if (!user) {
+  //       return res.status(404).json({ success: false, message: 'User not found' });
+  //     }
+  //     res.json({ success: true, user });
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).json({ success: false, message: 'Server error' });
+  //   }
+  // };
+
   const getUserDetails = async (req, res) => {
     try {
       const user = await userModel.findById(req.user.id).select('-password'); // Exclude password from response
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
-      res.json({ success: true, user });
+      // Include the user id explicitly in the response, even though it's part of the user object by default
+      const userDetails = {
+        _id: user._id,  // Explicitly include the user id
+        username: user.username,
+        email: user.email,
+        // Add any other fields you want to include in the response
+      };
+      console.log('User Details:', userDetails);
+      res.json({ success: true, user: userDetails });
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: 'Server error' });
     }
   };
-
+  
 
 
 

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
+import styles from './pagesModuleCSS/Home.module.css'
+import { AiOutlineFolderAdd } from "react-icons/ai";
+import { FaPlus } from "react-icons/fa6";
 import Modal from 'react-modal';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,13 +14,14 @@ const Home = () => {
   const [user, setUser] = useState(null);
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
+  const [parentId, setParentId] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
   const [currentFolderIndex, setCurrentFolderIndex] = useState(null);
   const [inputName, setInputName] = useState('');
   const navigate = useNavigate();
 
-  // Load user from localStorage when component mounts
+  // Load user from localStorage when component mounts and fetch user details
   useEffect(() => {
     const userData = localStorage.getItem('user');
     const token = localStorage.getItem('authToken');
@@ -29,8 +33,31 @@ const Home = () => {
       const parsedUser = JSON.parse(userData);
       console.log('User data from localStorage:', parsedUser);
       setUser(parsedUser);
+      fetchUserDetails(parsedUser._id, token); // Fetch full user details if user is available
     }
   }, [navigate]);
+
+  const fetchUserDetails = async (userId, token) => {
+    try {
+      const response = await fetch('http://localhost:4000/api/user/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setUser(data.user); // Update user state with the full user data from API
+      } else {
+        toast.error(data.message || 'Failed to fetch user details');
+        navigate('/signin');
+      }
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      toast.error('An error occurred. Please try again.');
+      navigate('/signin');
+    }
+  };
 
   // Handle Logout
   const handleLogout = () => {
@@ -40,17 +67,20 @@ const Home = () => {
   };
 
   // Modal handling for folders and files
-  const openModal = (type, folderIndex = null) => {
+  const openModal = (type, folderIndex = null, parentId=null) => {
+    console.log("parentId", parentId)
     setModalType(type);
     setCurrentFolderIndex(folderIndex);
     setInputName('');
     setIsModalOpen(true);
+    setParentId(parentId)
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
   };
 
+  // Handle file/folder creation
   const handleCreate = () => {
     if (inputName.trim() === '') {
       toast.error('Name cannot be empty');
@@ -62,7 +92,7 @@ const Home = () => {
         toast.error('Folder name already exists');
         return;
       }
-      const newFolder = { name: inputName, files: [] };
+      const newFolder = { name: inputName, type: 'folder', files: [] };
       setFolders([...folders, newFolder]);
       saveFileOrFolder(user._id, newFolder, 'folder');
     } else if (modalType === 'file') {
@@ -71,7 +101,7 @@ const Home = () => {
           toast.error('File name already exists');
           return;
         }
-        const newFile = { name: inputName };
+        const newFile = { name: inputName, type: 'file', parentId:parentId };
         setFiles([...files, newFile]);
         saveFileOrFolder(user._id, newFile, 'file');
       } else {
@@ -81,7 +111,7 @@ const Home = () => {
           toast.error('File name already exists in this folder');
           return;
         }
-        const newFile = { name: inputName };
+        const newFile = { name: inputName, type: 'file', parentId: folder._id };
         folder.files.push(newFile);
         setFolders(updatedFolders);
         saveFileOrFolder(user._id, newFile, 'file');
@@ -93,28 +123,29 @@ const Home = () => {
   };
 
   const saveFileOrFolder = async (userId, item, type) => {
+    console.log("item.parentid",item.parentId)
     const token = user?.token || localStorage.getItem('authToken');
     if (!token) {
       toast.error('User is not authenticated. Please log in again.');
       navigate('/signin');
       return;
     }
-  
+
     try {
       const payload = {
         userId,
-        name: item.name,  // Include `name`
-        type,             // Include `type` ('file' or 'folder')
+        name: item.name, // Include `name`
+        type,
+        
       };
-  
       if (type === 'file' && item.content) {
         payload.content = item.content; // Add `content` if provided (optional)
       }
-  
+
       if (type === 'file' && item.parentId) {
         payload.parentId = item.parentId; // Add `parentId` if the file is in a folder
       }
-  
+
       const response = await fetch('http://localhost:4000/api/files/save', {
         method: 'POST',
         headers: {
@@ -123,7 +154,7 @@ const Home = () => {
         },
         body: JSON.stringify(payload),
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         console.log(`${type} saved successfully:`, data);
@@ -135,10 +166,6 @@ const Home = () => {
       toast.error('An error occurred. Please try again.');
     }
   };
-  
-
-
-
 
   // Fetch files and folders from the server
   const fetchFilesAndFolders = async (userId) => {
@@ -158,8 +185,9 @@ const Home = () => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log('Fetched files and folders:', data.files);
-        return data.files;
+        setFiles(data.data)
+        console.log('Fetched files and folders:', data.data);
+        return data.data; // Ensure the API returns data in this structure.
       } else {
         toast.error(data.message || 'Failed to fetch files.');
         return [];
@@ -174,86 +202,100 @@ const Home = () => {
   // Fetch files and folders once user data is available
   useEffect(() => {
     if (user) {
-      fetchFilesAndFolders(user._id).then(fetchedFiles => {
-        console.log('Fetched files and folders:', fetchedFiles);
-  if (Array.isArray(fetchedFiles) && fetchedFiles.length > 0) {
-    setFolders(fetchedFiles.filter(item => item.type === 'folder'));
-    setFiles(fetchedFiles.filter(item => item.type === 'file'));
-  } else {
-    console.error('Fetched files is not an array or is empty:', fetchedFiles);
-  }
-}).catch(error => {
-  console.error('Error fetching files:', error);
-});
-}
-}, [user]);
+      fetchFilesAndFolders(user._id).then((fetchedItems) => {
+        if (Array.isArray(fetchedItems) && fetchedItems.length > 0) {
+          const folders = fetchedItems.filter((item) => item.type === 'folder');
+          const files = fetchedItems.filter((item) => item.type === 'file' && !item.parentId);
+
+          // Nest files into their respective folders if `parentId` exists
+          folders.forEach((folder) => {
+            folder.files = fetchedItems.filter((file) => file.parentId === folder._id);
+          });
+
+          setFolders(folders);
+          setFiles(files); // Standalone files without parentId
+        } else {
+          console.warn('No items fetched:', fetchedItems);
+          setFolders([]);
+          setFiles([]);
+        }
+      }).catch((error) => {
+        console.error('Error fetching files:', error);
+      });
+    }
+  }, [user]);
 
   if (!user) {
-    return null; // Prevent rendering the body before user data is fetched
+    return <p>Loading...</p>; // Handle initial loading state
   }
 
+  const handleWorkspaceNavigation = (fileId) => {
+    const selectedFile = files.find((file) => file._id === fileId);
+    // console.log("files", files)
+    console.log("file._id", fileId)
+    console.log("selectedFile", selectedFile)
+    navigate('/workspace', { state: { 
+      user,
+      file: selectedFile,
+      fileId,
+      parentId: parentId
+     } });
+  };
+  
+
   return (
-    <div>
+    <div className={styles.mainContainer}>
       {user && <Navbar userName={user.username} onLogout={handleLogout} />}
-
-      <div className="welcome-message">
-        <h2>Welcome, {user.username || 'User'}!</h2>
-        <p>Your email: {user.email || 'Not provided'}</p>
-      </div>
-
+<div className={styles.mainFolder}>
       <div className="controls">
-        <button onClick={() => openModal('folder')}>Create Folder</button>
-        <button onClick={() => openModal('file')}>Create Standalone File</button>
+        <button onClick={() => openModal('folder')}> <span><AiOutlineFolderAdd /></span> Create Folder</button>
       </div>
-
-      <div className="file-structure">
-  {folders.map((folder, index) => (
-    <div key={index} className="folder">
-      <div
-        className="folder-name"
-        onClick={() => openModal('file', index)}
-        style={{ cursor: 'pointer', fontWeight: 'bold' }}
-      >
-        {folder.name}
-      </div>
-      <ul>
-        {/* Ensure folder.files is an array */}
-        {(folder.files || []).map((file, fileIndex) => (
-          <li key={fileIndex}>{file.name}</li>
+      <div className={styles.fileStructure}>
+        {folders.map((folder, index) => (
+          <div key={index} className={styles.folder}>
+            <div
+              className={styles.folderName}
+              // data-parentid = {folder.parentId}
+              onClick={() => openModal('file', index, folder.parentId)}
+            >
+              {folder.name}
+            </div>
+            <div className="files">
+              {folder.files.map((file, idx) => (
+                <div onClick={() => handleWorkspaceNavigation(file._id,file.name)} key={idx} className="file">
+                  {file.name}
+                </div>
+              ))}
+            </div>
+          </div>
         ))}
-      </ul>
-    </div>
-  ))}
 
-
-        <div className="files">
-          <h3>Standalone Files:</h3>
-          <ul>
-            {files.map((file, index) => (
-              <li key={index}>{file.name}</li>
-            ))}
-          </ul>
-        </div>
+</div>
+        <button onClick={() => openModal('file')}> <span><FaPlus />
+        </span> Create a typebot</button>
+        {files.map((file, index) => (
+          <div onClick={() => handleWorkspaceNavigation(file._id,file.name)} key={index} className="file">
+            {file.name}
+          </div>
+        ))}
       </div>
 
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
-        contentLabel="Create Modal"
-        className="modal"
-        overlayClassName="overlay"
+        contentLabel="Create Folder/File"
       >
-        <h2>Create {modalType === 'folder' ? 'Folder' : 'File'}</h2>
+        <h2>{modalType === 'folder' ? 'Create Folder' : 'Create File'}</h2>
         <input
           type="text"
+          placeholder={`Enter ${modalType === 'folder' ? 'Folder' : 'File'} Name`}
           value={inputName}
           onChange={(e) => setInputName(e.target.value)}
-          placeholder={`Enter ${modalType} name`}
         />
-        <div className="modal-buttons">
-          <button onClick={handleCreate}>Create</button>
-          <button onClick={closeModal}>Cancel</button>
-        </div>
+        <button onClick={handleCreate}>
+          {modalType === 'folder' ? 'Create Folder' : 'Create File'}
+        </button>
+        <button onClick={closeModal}>Cancel</button>
       </Modal>
 
       <ToastContainer />
@@ -262,3 +304,13 @@ const Home = () => {
 };
 
 export default Home;
+
+
+
+
+
+
+
+
+
+

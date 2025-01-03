@@ -1,9 +1,18 @@
 import React from 'react'
 import styles from './pagesModuleCSS/LandingPage.module.css'
 import { BsBoxArrowUpRight } from "react-icons/bs";
+import {useNavigate} from 'react-router-dom';
 
 
 function LandingPage() {
+  const navigate = useNavigate();
+
+  const navigatetoHome = () => {
+    navigate('/signin')
+  }
+
+
+
   return (
     <div className={styles.mainDiv}>
       <div className={styles.navbar}>
@@ -13,8 +22,8 @@ function LandingPage() {
         </div>
 
         <div className={styles.userAction}>
-            <button id={styles.signInButton}>Sign in</button>
-            <button id={styles.fromBotButton}>Create a FormBot</button>
+            <button onClick={ navigatetoHome} id={styles.signInButton}>Sign in</button>
+            <button onClick={ navigatetoHome} id={styles.fromBotButton}>Create a FormBot</button>
         </div>
       </div>
 

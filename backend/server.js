@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import userRouter from "./routes/userRoute.js"
 import fileRoutes from './routes/fileRoute.js';
 import protectedRouter from "./routes/protectedroute.js";
-
+import formRouter from "./routes/formRoute.js";
 
 const allowedOrigins = ['http://localhost:5173'];
 
@@ -36,7 +36,7 @@ connectDB();
 app.use("/api/user", userRouter)
 app.use('/api/files', fileRoutes);
 app.use("/api/protected", protectedRouter);
-
+app.use("/api/forms", formRouter);
 
 
 

@@ -1,0 +1,28 @@
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.fileStructure {
+    width: 80vw;
+    display: flex;
+}
+
+
+.folder {
+    height: 30px;
+    width: 100px;
+    background-color: aqua;
+    display: flex;
+    flex-direction: row;
+
+}
+
+/* .folderName {
+    display: flex;
+} */
+
+.mainFolder {
+    display: flex;
+}

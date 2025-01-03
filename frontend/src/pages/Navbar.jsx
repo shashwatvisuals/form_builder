@@ -84,27 +84,6 @@ const Navbar = ({ userName, onLogout }) => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
 
-  // const handleInvite = async () => {
-  //   try {
-  //     const response = await axios.post('http://localhost:4000/api/files/share', { email, permission, type: 'email' });
-  //     toast.success('Workbook shared successfully!');
-  //   } catch (error) {
-  //     const errorMessage = error.response?.data?.message || 'User is not registered';
-  //     toast.error(errorMessage);
-  //   }
-  // };
-
-  // const handleGenerateLink = async () => {
-  //   try {
-  //     const { data } = await axios.post('http://localhost:4000/api/files/share', { permission, type: 'link' });
-  //     setSharedLink(data.link);
-  //     toast.success('Link generated successfully!');
-  //   } catch {
-  //     toast.error('Failed to generate link');
-  //   }
-  // };
-
-
   const handleInvite = async () => {
     try {
       const token = localStorage.getItem('authToken'); // Assuming token is stored in localStorage
@@ -161,31 +140,44 @@ const Navbar = ({ userName, onLogout }) => {
 
   return (
     <nav className={styles.navbar}>
-      <div className="navbar-brand">Form Builder</div>
-
-      <div className="navbar-actions">
-        <button className="theme-toggle" onClick={toggleTheme}>
-          {theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme'}
-        </button>
-
-        <div className="dropdown">
+      <div className={styles.navbarActions}>
+        <div className={styles.dropdownDiv}>
+        <div className={styles.dropdown}>
           <button className="dropdown-toggle" onClick={toggleDropdown}>
-            Dropdown
+            {userName}'s workspace
           </button>
           {isDropdownOpen && (
-            <ul className="dropdown-menu">
-              <li className="dropdown-item">{userName || 'Guest'}</li>
+            <ul className={styles.dropdownMenu}>
               <li>
-                <Link to="/settings" className="dropdown-item" onClick={toggleDropdown}>
+                <Link id={styles.settings} to="/settings" className={styles.dropdownItem} onClick={toggleDropdown}>
                   Settings
                 </Link>
               </li>
-              <li className="dropdown-item" onClick={onLogout}>
+              <li className={styles.dropdownItem} onClick={onLogout}>
                 Logout
               </li>
             </ul>
           )}
         </div>
+        </div>
+        {/* <button className={"theme-toggle"} onClick={toggleTheme}>
+          {theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme'}
+        </button> */}
+<div className={styles.themeDiv}>
+<p>Light</p>
+<div className={styles.themeSwitch}>
+  <label className={styles.themeSwitch}>
+    <input
+      type="checkbox"
+      checked={theme === 'dark'}
+      onChange={toggleTheme}
+    />
+    <span className={styles.slider}></span>
+  </label>
+</div>
+<p>Dark</p>
+</div>
+
 
         <button className="share-button" onClick={() => setIsShareModalOpen(true)}>Share</button>
       </div>

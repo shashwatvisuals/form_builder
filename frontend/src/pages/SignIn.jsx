@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
+import { FcGoogle } from "react-icons/fc";
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 import styles from './pagesModuleCSS/SignIn.module.css';
@@ -125,12 +126,15 @@ function SignIn() {
 
 
   return (
-    <div className={styles.container}>
-      <div><FaArrowLeft /></div>
+    <div className={styles.mainContainer}>
+      <div onClick={() => navigate('/')} className={styles.arrowDiv}><FaArrowLeft /></div>
+      <div className={styles.loginNSignUpDiv}>
+      <img src="./assets/Group2.png" alt="" />
       <div>
+        <div className={styles.signInNCircleDiv}>
         <div className={styles.signForm}>
           {isSignUp ? (
-            <>
+            <div className={styles.inputs}>
               <p>Username</p>
               <input
                 type="text"
@@ -163,9 +167,9 @@ function SignIn() {
                 onChange={handleChange}
                 placeholder="Confirm your password"
               />
-            </>
+            </div>
           ) : (
-            <>
+            <div className={styles.inputs}>
               <p>Email</p>
               <input
                 type="email"
@@ -182,21 +186,27 @@ function SignIn() {
                 onChange={handleChange}
                 placeholder="Enter your password"
               />
-            </>
+            </div>
           )}
           {error && <p className={styles.error}>{error}</p>}
           {success && <p className={styles.success}>{success}</p>}
-          <button onClick={handleSubmit}>{isSignUp ? 'Sign Up' : 'Log In'}</button>
-          <span>OR</span>
+          <button className={styles.submitButton} onClick={handleSubmit}>{isSignUp ? 'Sign Up' : 'Log In'}</button>
+          <span id={styles.orSpan}>OR</span>
+          <button id={styles.signUpWithGoogle}><span><FcGoogle id={styles.googleIcon}/></span>Sign Up with Google</button>
           <p>
             {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
             <span onClick={handleToggle} className={styles.toggleLink}>
               {isSignUp ? 'Log in' : 'Register now'}
             </span>
           </p>
+          </div>
+          <div className={styles.bottomImageDiv}>
+          <img className={styles.bottomImage}  src="./assets/Ellipse1.png" alt="" />
+          </div>
         </div>
+        </div>
+        <img src="./assets/Ellipse2.png" alt="" />
       </div>
-
     </div>
   );
 }

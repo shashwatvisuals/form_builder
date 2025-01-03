@@ -1,19 +1,21 @@
 import mongoose from "mongoose";
 
-const fileScema = new mongoose.Schema({
-    userId: {type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
-    name: {type: String, required:true},
-    type: {type: String, default: ''},
-    content: {type: String , default: ''},
-    parentId: {type: mongoose.Schema.Types.ObjectId, ref: 'file', default: null},
-    createdAt: {type: Date, default: Date.now},
-    updatedAt: {type: Date, default: Date.now},
-},{timestamps: true});
+const fileSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
+    name: { type: String, required: true },
+    type: { type: String, default: "file" },
+    content: { type: [Object], default: [] },
+    parentId: { type: mongoose.Schema.Types.ObjectId, ref: "file", default: null },
+  },
+  { timestamps: true }
+);
 
-const fileModel = mongoose.model.file || mongoose.model("file", fileScema)
+fileSchema.index({ userId: 1, parentId: 1 });
+
+const fileModel = mongoose.models.file || mongoose.model("file", fileSchema);
 
 export default fileModel;
-
 
 
 

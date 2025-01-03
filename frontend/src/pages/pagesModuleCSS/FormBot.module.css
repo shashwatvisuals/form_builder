@@ -1,0 +1,28 @@
+.ratingWrapper {
+    margin: 20px 0;
+  }
+  
+  .ratingButtonsContainer {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .ratingButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .ratingButton:hover {
+    background-color: #ddd;
+  }
+  
+  .ratingButton:active {
+    background-color: #4caf50;
+    color: white;
+  }
+  
